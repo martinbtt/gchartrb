@@ -47,7 +47,7 @@ module GoogleChart
     end
 
     def bar_width=(width)
-      raise ArgumentError.new("bar width should be in integer or :automatic") unless width == :automatic || width.is_a?(Integer)
+      raise ArgumentError.new("bar width should be in integer") unless width == :automatic || width.is_a?(Integer)
       @bar_width = width == :automatic ? "a" : width
     end
 
