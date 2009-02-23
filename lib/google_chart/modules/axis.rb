@@ -5,7 +5,7 @@ module GoogleChart
     AXIS_TYPE_MAPPING = { :top => "t", :bottom => "x", :left => "y", :right => "r" }
     ALIGNMENT_MAPPING = { :center => 0, :left => -1, :right => -1}
 
-    Axis = Struct.new("Axis", :type, :labels, :positions, :range, :color, :font_size, :alignment)
+    Axis = Struct.new("Axis", :type, :labels, :positions, :range, :color, :font_size, :alignment, :interval)
 
     def axis(type, options={})
       @axes ||= []
@@ -25,7 +25,10 @@ module GoogleChart
       chxt       = @axes.collect { |axis| "#{AXIS_TYPE_MAPPING[axis.type]}" }
       labels     = @axes.collect { |axis| "#{@axes.index(axis)}:|#{axis.labels.join('|')}" if axis.labels }.compact
       positions  = @axes.collect { |axis| "#{@axes.index(axis)},#{axis.positions.join(',')}" if axis.positions}.compact
-      ranges     = @axes.collect { |axis| "#{@axes.index(axis)},#{axis.range.min},#{axis.range.max}" if axis.range }.compact
+      ranges     = @axes.collect do |axis|
+                    interval_str = axis.interval ? ",#{axis.interval}" : ""
+                    "#{@axes.index(axis)},#{axis.range.min},#{axis.range.max}#{interval_str}" if axis.range
+                   end.compact
       styles     = @axes.collect do |axis|
                      style = [axis.color,axis.font_size, ALIGNMENT_MAPPING[axis.alignment]].compact
                      unless style.empty?
