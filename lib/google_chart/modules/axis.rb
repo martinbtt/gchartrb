@@ -4,8 +4,9 @@ module GoogleChart
   module Axis
     AXIS_TYPE_MAPPING = { :top => "t", :bottom => "x", :left => "y", :right => "r" }
     ALIGNMENT_MAPPING = { :center => 0, :left => -1, :right => -1}
+    DRAWING_CONTROL_MAPPING = { :lines => 'l', :ticks => 't', :both => 'lt'}
 
-    Axis = Struct.new("Axis", :type, :labels, :positions, :range, :color, :font_size, :alignment, :interval)
+    Axis = Struct.new("Axis", :type, :labels, :positions, :range, :color, :font_size, :alignment, :interval, :drawing_control)
 
     def axis(type, options={})
       @axes ||= []
@@ -30,7 +31,7 @@ module GoogleChart
                     "#{@axes.index(axis)},#{axis.range.min},#{axis.range.max}#{interval_str}" if axis.range
                    end.compact
       styles     = @axes.collect do |axis|
-                     style = [axis.color,axis.font_size, ALIGNMENT_MAPPING[axis.alignment]].compact
+                     style = [axis.color,axis.font_size, ALIGNMENT_MAPPING[axis.alignment],DRAWING_CONTROL_MAPPING[axis.drawing_control]].compact
                      unless style.empty?
                        "#{@axes.index(axis)},#{style.join(',')}"
                      end
@@ -52,6 +53,7 @@ module GoogleChart
       raise ArgumentError.new("font_size cannot be specified without a color") if (axis.font_size && axis.color == nil)
       raise ArgumentError.new("alignment cannot be specified without a color") if (axis.alignment && (axis.color == nil or axis.font_size == nil))
       raise ArgumentError.new("alignment must be one of :left, :center, :right") unless (axis.alignment ==nil or ALIGNMENT_MAPPING.keys.include?(axis.alignment))
+      raise ArgumentError.new("drawing_control must be one of :lines, :ticks: or :both") unless (axis.drawing_control == nil or DRAWING_CONTROL_MAPPING.keys.include?(axis.drawing_control))
 
       unless (axis.labels.to_a.size == axis.positions.to_a.size)
         raise ArgumentError.new("sizes of labels and positions must be the same") unless axis.labels == nil or axis.positions == nil

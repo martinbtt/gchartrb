@@ -33,9 +33,10 @@ describe GoogleChart::Axis do
       axis.range     = 0..500
       axis.labels    = ["a","b","c"]
       axis.positions = [100,200,400]
+      axis.drawing_control = :lines
     end
     @chart.query_params[:chxt].should eql("t")
-    @chart.query_params[:chxs].should eql("0,ff00ff,15,0")
+    @chart.query_params[:chxs].should eql("0,ff00ff,15,0,l")
     @chart.query_params[:chxl].should eql("0:|a|b|c")
     @chart.query_params[:chxp].should eql("0,100,200,400")
     @chart.query_params[:chxr].should eql("0,0,500")
@@ -122,4 +123,14 @@ describe GoogleChart::Axis do
     lambda { @chart.axis(:top, params) }.should raise_error(ArgumentError)
   end
 
+  it "should raise an error if an invalid drawing control is given" do
+    params = @valid_axis_params.except(:drawing_control)
+    lambda { @chart.axis(:top, params) }.should_not raise_error(ArgumentError)
+    params[:drawing_control] = :ticks
+    lambda { @chart.axis(:top, params) }.should_not raise_error(ArgumentError)
+    
+    params[:drawing_control] = :blah
+    lambda { @chart.axis(:top, params) }.should raise_error(ArgumentError)
+  end
+  
 end
